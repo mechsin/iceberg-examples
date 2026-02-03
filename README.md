@@ -21,6 +21,30 @@ uv pip install -r requirements.txt
 
 ## Run
 
+### Initialize the warehouse
+
+This creates the local warehouse directory, ensures the namespace exists, and creates the Iceberg table if it is missing.
+
+```bash
+uv run python warehouse.py init
+```
+
+### Reset the table
+
+This drops and recreates the Iceberg table while keeping the warehouse directory structure in place.
+
+```bash
+uv run python warehouse.py reset
+```
+
+### Clean the warehouse
+
+This drops the Iceberg table and deletes both the warehouse directory and the downloads cache.
+
+```bash
+uv run python warehouse.py clean
+```
+
 ### Download only
 
 ```bash
