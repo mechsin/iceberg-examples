@@ -123,3 +123,7 @@ The `settings.py` file centralizes configuration:
 - `table_name`: Iceberg table name (defaults to `noaa_gsod`).
 - `identifier`: Fully qualified table identifier (e.g., `weather.noaa_gsod`).
 - `catalog`: PyIceberg catalog configuration used by `load_catalog` (local SQL + warehouse path).
+
+## Snapshot notes
+
+This example can create **many snapshots**, which may cause Iceberg metadata to grow larger than the data itself. That behavior is mostly a result of how frequently data is appended in small batches. If you backfill large ranges, consider using larger write batches and follow up with Iceberg maintenance like `expire_snapshots` to prune old snapshots.
