@@ -47,11 +47,15 @@ uv run python warehouse.py clean
 
 ### Download only
 
+Fetches NOAA GSOD CSVs for the requested years and site IDs into `downloads/` without inserting into Iceberg.
+
 ```bash
 uv run python noaa_data.py download 1980 1990 --site-id 72406093721
 ```
 
 ### Download and insert
+
+Downloads the CSVs (if missing locally) and appends them into the Iceberg table.
 
 ```bash
 uv run python noaa_data.py insert 1980 1990 --site-id 72406093721
@@ -59,11 +63,15 @@ uv run python noaa_data.py insert 1980 1990 --site-id 72406093721
 
 ### Multiple site IDs
 
+Pass multiple station IDs in one run to download/insert them together.
+
 ```bash
 uv run python noaa_data.py insert 1980 1990 --site-id 72406093721 72681024131
 ```
 
 ### Site IDs from a file
+
+Use `file:PATH` to load a list of IDs from a file (space- or newline-separated).
 
 ```bash
 uv run python noaa_data.py insert 1980 1990 --site-id file:site_ids.txt
@@ -71,11 +79,15 @@ uv run python noaa_data.py insert 1980 1990 --site-id file:site_ids.txt
 
 ### Control write batch size
 
+The default batch size is 1000 rows. For large backfills, increasing this value is significantly more efficient because it reduces the number of Iceberg append operations. 
+
 ```bash
 uv run python noaa_data.py insert 1980 1990 --site-id 72406093721 --min-rows 5000
 ```
 
 ### Read a summary
+
+Prints the table name, total row count, and one example row for a quick sanity check.
 
 ```bash
 uv run python read_data.py
