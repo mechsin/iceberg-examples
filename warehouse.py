@@ -53,19 +53,24 @@ def init_catalog() -> None:
         print(f"{settings.identifier} already exists in {warehouse_dir}")
 
 
-def reset_catalog() -> None:
-    """Drop and recreate the Iceberg table."""
+def reset_catalog(hard: bool = False) -> None:
+    """Drop and recreate the Iceberg table, optionally wiping the warehouse directory."""
     warehouse_dir = ensure_warehouse_dir()
     catalog = load_catalog(**settings.catalog)
     ensure_namespace(catalog)
 
-    try:
-        catalog.drop_table(settings.identifier)
-    except Exception:
-        pass
+    if hard:
+        if os.path.exists(settings.warehouse_dir):
+            shutil.rmtree(settings.warehouse_dir)
+        os.makedirs(settings.warehouse_dir, exist_ok=True)
+    else:
+        try:
+            catalog.drop_table(settings.identifier)
+        except Exception:
+            pass
 
-    catalog.create_table(settings.identifier, schema=iceberg_schema())
     print(f"Reset {settings.identifier} in {warehouse_dir}")
+    init_catalog()
 
 
 def clean_catalog() -> None:
@@ -96,7 +101,12 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     subparsers.add_parser("init", help="Create the namespace/table if missing.")
-    subparsers.add_parser("reset", help="Drop and recreate the table.")
+    reset_parser = subparsers.add_parser("reset", help="Drop and recreate the table.")
+    reset_parser.add_argument(
+        "--hard",
+        action="store_true",
+        help="Wipe the warehouse directory before recreating the table.",
+    )
     subparsers.add_parser("clean", help="Drop the table and remove the warehouse directory.")
 
     return parser
@@ -110,7 +120,7 @@ def main() -> None:
     if args.command == "init":
         init_catalog()
     elif args.command == "reset":
-        reset_catalog()
+        reset_catalog(hard=args.hard)
     elif args.command == "clean":
         clean_catalog()
 
