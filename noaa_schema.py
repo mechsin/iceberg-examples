@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import pyarrow as pa
+from pyiceberg.partitioning import PartitionField, PartitionSpec
 from pyiceberg.schema import Schema
+from pyiceberg.transforms import BucketTransform, YearTransform
 from pyiceberg.types import (
     DateType,
     DoubleType,
@@ -92,4 +94,21 @@ def arrow_schema() -> pa.Schema:
             ("SNDP", pa.float64()),
             ("FRSHTT", pa.string()),
         ]
+    )
+
+
+def partition_spec() -> PartitionSpec:
+    return PartitionSpec(
+        PartitionField(
+            source_id=1,
+            field_id=1000,
+            transform=BucketTransform(32),
+            name="station_bucket",
+        ),
+        PartitionField(
+            source_id=2,
+            field_id=1001,
+            transform=YearTransform(),
+            name="date_year",
+        ),
     )

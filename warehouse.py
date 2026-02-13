@@ -7,7 +7,7 @@ import shutil
 from pyiceberg.catalog import load_catalog
 
 import settings
-from noaa_schema import iceberg_schema
+from noaa_schema import iceberg_schema, partition_spec
 
 
 def ensure_warehouse_dir() -> str:
@@ -47,7 +47,11 @@ def init_catalog() -> None:
     ensure_namespace(catalog)
 
     if not table_exists(catalog):
-        catalog.create_table(settings.identifier, schema=iceberg_schema())
+        catalog.create_table(
+            settings.identifier,
+            schema=iceberg_schema(),
+            partition_spec=partition_spec(),
+        )
         print(f"Created {settings.identifier} in {warehouse_dir}")
     else:
         print(f"{settings.identifier} already exists in {warehouse_dir}")
